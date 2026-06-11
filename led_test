@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+import RPi.GPIO as GPIO
+import time  
+
+# === CONFIGURATION ===
+LED_PINS = [17, 27, 22]  # Green, Yellow, Red
+
+def setup_gpio():
+    GPIO.setmode(GPIO.BCM)        
+    for pin in LED_PINS:
+        GPIO.setup(pin, GPIO.OUT) # Set pin as output
+        GPIO.output(pin, GPIO.LOW) # Explicitly start with them off
+        print(f"  GPIO {pin} ready — LED off")
+
+def main():
+    setup_gpio()
+
+    try:
+        # Loop through each pin one by one
+        for pin in LED_PINS:
+            print(f"\n💡 Forcing GPIO {pin} HIGH... This LED should be ON now!")
+            GPIO.output(pin, GPIO.HIGH)
+            
+            print("Holding for 10 seconds. Press Ctrl+C to stop early.")
+            time.sleep(10)
+            
+            # Turn it off before moving to the next LED
+            GPIO.output(pin, GPIO.LOW)
+
+    except KeyboardInterrupt:
+        print("\nStopping early...")
+        
+    finally:
+        print("\n🧹 Cleaning up GPIO...")
+        for pin in LED_PINS:
+            GPIO.output(pin, GPIO.LOW)  # Make sure all LEDs are off on exit
+        GPIO.cleanup()                  # Release GPIO pins
+       
+
+if __name__ == '__main__':
+    main()
