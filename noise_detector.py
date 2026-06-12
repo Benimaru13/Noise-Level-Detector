@@ -1,3 +1,6 @@
+import os
+os.environ['GPIOZERO_PIN_FACTORY'] = 'rpigpio'  # or 'pigpio'
+
 import sounddevice as sd
 from gpiozero import LED
 from time import sleep
