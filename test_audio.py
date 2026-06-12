@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
 Simple audio test script to verify speaker output on Raspberry Pi.
-This will play the alert sound file directly using pygame (works with Bluetooth speakers).
+This will play the alert sound file directly using aplay (works with Bluetooth speakers).
 """
 
 import os
-import pygame
-from time import sleep
+import subprocess
 
 # Audio file to test
 AUDIO_FILE = "/home/benimaru/Noise-Level-Detector/pcm0808m.wav"
@@ -23,22 +22,17 @@ if not os.path.exists(AUDIO_FILE):
 print(f"✅ File found!")
 
 try:
-    print("\n📢 Initializing pygame mixer...")
-    pygame.mixer.init()
-    
-    print("Loading audio file...")
-    sound = pygame.mixer.Sound(AUDIO_FILE)
-    
-    print("▶️  Playing audio...")
-    sound.play()
-    
-    # Wait for audio to finish playing
-    sleep(sound.get_length())
+    print("\n▶️  Playing audio with aplay...")
+    subprocess.run(['aplay', AUDIO_FILE], check=True)
     
     print("✅ Audio playback complete!")
     print("\n🎉 Speaker is working correctly!")
     
-except Exception as e:
+except subprocess.CalledProcessError as e:
     print(f"❌ Error during playback: {e}")
     print("Speaker may not be working or audio file is corrupted.")
+    exit(1)
+except FileNotFoundError:
+    print("❌ Error: aplay not found. Please install alsa-utils:")
+    print("   sudo apt-get install alsa-utils")
     exit(1)
