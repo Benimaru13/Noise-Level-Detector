@@ -1,10 +1,10 @@
 import sounddevice as sd
-import numpy as np
 from gpiozero import LED
 from time import sleep
 import simpleaudio as sa
 from threading import Thread
 import os
+import math
 
 #new version speaker 
 
@@ -30,7 +30,10 @@ current_playback = None
 
 def get_volume(audio_data):
     """Calculates the Root Mean Square (RMS) of the audio chunk to approximate volume."""
-    rms = np.sqrt(np.mean(audio_data**2))
+    # Calculate mean of squared values
+    mean_of_squares = sum(x**2 for x in audio_data) / len(audio_data)
+    # Return square root
+    rms = math.sqrt(mean_of_squares)
     return rms
 
 def play_alert_sound():
