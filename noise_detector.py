@@ -49,7 +49,7 @@ def play_alert_sound():
     
     try:
         # Load and play the audio file
-        wave_obj = sa.WaveFile(ALERT_AUDIO_FILE)
+        wave_obj = sa.WaveObject.from_wave_file(ALERT_AUDIO_FILE)
         current_playback = wave_obj.play()
         alert_playing = True
         
