@@ -13,8 +13,8 @@ SAMPLE_RATE = 44100  # Standard CD-quality sampling
 DURATION = 0.2       # Listen in 0.2-second chunks
 
 # 3. Calibration Thresholds (Adjust these values based on your room test!)
-THRESHOLD_LOW = 0.015   # Levels below this = Quiet (Green)
-THRESHOLD_HIGH = 0.060  # Levels between Low and High = Moderate (Yellow). Above = Loud (Red)
+THRESHOLD_LOW = 0.0200   # Levels below this = Quiet (Green)
+THRESHOLD_HIGH = 0.1000  # Levels between Low and High = Moderate (Yellow). Above = Loud (Red)
 
 def get_volume(audio_data):
     """Calculates the Root Mean Square (RMS) of the audio chunk to approximate volume."""
