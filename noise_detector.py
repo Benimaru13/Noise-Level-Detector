@@ -4,12 +4,12 @@ os.environ['GPIOZERO_PIN_FACTORY'] = 'rpigpio'  # or 'pigpio'
 import sounddevice as sd
 from gpiozero import LED
 from time import sleep, time
-import pygame
+import subprocess
 from threading import Thread
 import os
 import math
 
-#new version speaker (Bluetooth compatible with pygame)
+#new version speaker (using aplay for Bluetooth compatibility)
 
 # 1. Initialize our LEDs using GPIO Zero
 green_led = LED(17)
@@ -31,13 +31,6 @@ ALERT_AUDIO_FILE = "/home/benimaru/Noise-Level-Detector/pcm0808m.wav"  # Path to
 last_alert_time = 0
 ALERT_COOLDOWN = 2  # Only play alert once every 2 seconds
 
-# Initialize pygame mixer for Bluetooth speaker support
-try:
-    pygame.mixer.init()
-    print("✅ Pygame mixer initialized (Bluetooth speaker support enabled)")
-except Exception as e:
-    print(f"⚠️  Warning: Could not initialize pygame mixer: {e}")
-
 def get_volume(audio_data):
     """Calculates the Root Mean Square (RMS) of the audio chunk to approximate volume."""
     # Calculate mean of squared values
@@ -47,7 +40,7 @@ def get_volume(audio_data):
     return rms
 
 def play_alert_sound():
-    """Plays the custom alert audio file in a separate thread using pygame."""
+    """Plays the custom alert audio file in a separate thread using aplay."""
     
     if not os.path.exists(ALERT_AUDIO_FILE):
         print(f"⚠️  Alert audio file '{ALERT_AUDIO_FILE}' not found!")
@@ -55,18 +48,18 @@ def play_alert_sound():
     
     try:
         print(f"🔔 Loading audio file: {ALERT_AUDIO_FILE}")
-        # Load the audio file with pygame
-        sound = pygame.mixer.Sound(ALERT_AUDIO_FILE)
-        print("🔔 Audio file loaded, starting playback...")
-        sound.play()
-        print("🔔 Playing Alert Sound (Bluetooth speaker)")
-        
-        # Wait for playback to finish
-        sleep(sound.get_length())
+        print("🔔 Playing Alert Sound (Bluetooth speaker)...")
+        # Use aplay to play the audio file
+        subprocess.run(['aplay', ALERT_AUDIO_FILE], check=True)
         print("🔔 Alert Sound finished")
     
-    except Exception as e:
+    except FileNotFoundError:
+        print("❌ Error: aplay not found. Please install alsa-utils:")
+        print("   sudo apt-get install alsa-utils")
+    except subprocess.CalledProcessError as e:
         print(f"❌ Error playing alert sound: {e}")
+    except Exception as e:
+        print(f"❌ Unexpected error playing alert sound: {e}")
 
 print("🔊 Noise Level Detector is starting... Press Ctrl+C to stop.")
 print(f"Alert sound file: {ALERT_AUDIO_FILE}")
