@@ -1,1 +1,4 @@
-python3-sounddevice python3-numpy python3-gpiozero python3-simpleaudio
+python3-sounddevice 
+python3-numpy 
+python3-gpiozero 
+python3-simpleaudio
