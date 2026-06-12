@@ -1,12 +1,14 @@
 import sounddevice as sd
 import numpy as np
 from gpiozero import LED
+from gpiozero import Buzzer
 from time import sleep
 
-# 1. Initialize our LEDs using GPIO Zero
+# 1. Initialize our LEDs and buzzer using GPIO Zero
 green_led = LED(17)
 yellow_led = LED(27)
 red_led = LED(22)
+buzzer = Buzzer(10)
 
 # 2. Audio settings
 SAMPLE_RATE = 44100  # Standard CD-quality sampling
@@ -37,6 +39,7 @@ try:
         green_led.off()
         yellow_led.off()
         red_led.off()
+        buzzer.off()
         
         # Determine which LED to turn on based on the measured volume
         if volume < THRESHOLD_LOW:
@@ -45,6 +48,7 @@ try:
             yellow_led.on()
         else:
             red_led.on()
+            buzzer.on()
 
 except KeyboardInterrupt:
     print("\nShutting down safely. Turning off all LEDs.")
