@@ -56,6 +56,8 @@ def play_alert_sound():
         # Wait for playback to finish
         current_playback.wait_done()
         alert_playing = False
+        print("Playing Alert Sound")
+    
     except Exception as e:
         print(f"Error playing alert sound: {e}")
         alert_playing = False
@@ -67,6 +69,7 @@ def stop_alert_sound():
     if current_playback and alert_playing:
         current_playback.stop()
         alert_playing = False
+        print("Alert Sound Stopped")
 
 print("🔊 Noise Level Detector is starting... Press Ctrl+C to stop.")
 print(f"Alert sound file: {ALERT_AUDIO_FILE}")
