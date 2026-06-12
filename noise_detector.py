@@ -6,6 +6,8 @@ import simpleaudio as sa
 from threading import Thread
 import os
 
+#new version speaker 
+
 # 1. Initialize our LEDs using GPIO Zero
 green_led = LED(17)
 yellow_led = LED(27)
