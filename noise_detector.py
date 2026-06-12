@@ -48,18 +48,21 @@ def play_alert_sound():
         return
     
     try:
+        print(f"🔔 Loading audio file: {ALERT_AUDIO_FILE}")
         # Load and play the audio file
         wave_obj = sa.WaveObject.from_wave_file(ALERT_AUDIO_FILE)
+        print("🔔 Audio file loaded, starting playback...")
         current_playback = wave_obj.play()
         alert_playing = True
+        print("🔔 Playing Alert Sound")
         
         # Wait for playback to finish
         current_playback.wait_done()
         alert_playing = False
-        print("Playing Alert Sound")
+        print("🔔 Alert Sound finished")
     
     except Exception as e:
-        print(f"Error playing alert sound: {e}")
+        print(f"❌ Error playing alert sound: {e}")
         alert_playing = False
 
 def stop_alert_sound():
@@ -69,10 +72,11 @@ def stop_alert_sound():
     if current_playback and alert_playing:
         current_playback.stop()
         alert_playing = False
-        print("Alert Sound Stopped")
+        print("🔕 Alert Sound Stopped")
 
 print("🔊 Noise Level Detector is starting... Press Ctrl+C to stop.")
 print(f"Alert sound file: {ALERT_AUDIO_FILE}")
+print(f"File exists: {os.path.exists(ALERT_AUDIO_FILE)}")
 
 try:
     while True:
@@ -92,16 +96,22 @@ try:
         # Determine which LED to turn on based on the measured volume
         if volume < THRESHOLD_LOW:
             green_led.on()
+            print("🟢 Green LED (Quiet)")
             stop_alert_sound()
         elif THRESHOLD_LOW <= volume < THRESHOLD_HIGH:
             yellow_led.on()
+            print("🟡 Yellow LED (Moderate)")
             stop_alert_sound()
         else:
             red_led.on()
+            print("🔴 Red LED (Loud) - Alert should trigger!")
             # Play alert sound in a separate thread (non-blocking)
             if not alert_playing:
+                print("🔔 Starting alert thread...")
                 alert_thread = Thread(target=play_alert_sound, daemon=True)
                 alert_thread.start()
+            else:
+                print("⏸️  Alert already playing, skipping...")
 
 except KeyboardInterrupt:
     print("\nShutting down safely. Turning off all LEDs.")
