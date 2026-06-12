@@ -25,7 +25,7 @@ THRESHOLD_LOW = 0.0200   # Levels below this = Quiet (Green)
 THRESHOLD_HIGH = 0.1000  # Levels between Low and High = Moderate (Yellow). Above = Loud (Red)
 
 # 4. Audio file for alerts
-ALERT_AUDIO_FILE = "alert_sound.wav"  # Path to your custom audio file
+ALERT_AUDIO_FILE = "test.wav"  # Path to your custom audio file
 
 # Global variable to track if alert is currently playing
 alert_playing = False
