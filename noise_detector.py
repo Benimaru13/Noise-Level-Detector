@@ -45,6 +45,7 @@ def play_alert_sound():
     
     if not os.path.exists(ALERT_AUDIO_FILE):
         print(f"⚠️  Alert audio file '{ALERT_AUDIO_FILE}' not found!")
+        alert_playing = False
         return
     
     try:
@@ -53,11 +54,10 @@ def play_alert_sound():
         wave_obj = sa.WaveObject.from_wave_file(ALERT_AUDIO_FILE)
         print("🔔 Audio file loaded, starting playback...")
         current_playback = wave_obj.play()
-        alert_playing = True
-        print("🔔 Playing Alert Sound")
+        print("🔔 Playing Alert Sound (non-blocking)")
         
-        # Wait for playback to finish
-        current_playback.wait_done()
+        # Let it play in the background without blocking
+        sleep(2)  # Wait 2 seconds for the alert to finish (adjust based on your audio length)
         alert_playing = False
         print("🔔 Alert Sound finished")
     
@@ -108,6 +108,7 @@ try:
             # Play alert sound in a separate thread (non-blocking)
             if not alert_playing:
                 print("🔔 Starting alert thread...")
+                alert_playing = True  # Set this BEFORE starting the thread
                 alert_thread = Thread(target=play_alert_sound, daemon=True)
                 alert_thread.start()
             else:
