@@ -18,7 +18,7 @@ red_led = LED(22)
 
 # 2. Audio settings
 SAMPLE_RATE = 44100  # Standard CD-quality sampling
-DURATION = 0.2       # Listen in 0.2-second chunks
+DURATION = 0.1      # Listen in 0.1-second chunks
 
 # 3. Calibration Thresholds (Adjust these values based on your room test!)
 THRESHOLD_LOW = 0.0200   # Levels below this = Quiet (Green)
@@ -31,6 +31,8 @@ ALERT_AUDIO_FILE = "/home/benimaru/Noise-Level-Detector/alert_sound.wav"  # Path
 last_alert_time = 0
 ALERT_COOLDOWN = 2  # Only play alert once every 2 seconds
 
+current_process = None
+
 def get_volume(audio_data):
     """Calculates the Root Mean Square (RMS) of the audio chunk to approximate volume."""
     # Calculate mean of squared values
@@ -41,7 +43,7 @@ def get_volume(audio_data):
 
 def play_alert_sound():
     """Plays the custom alert audio file in a separate thread using aplay."""
-    
+    global current_process
     if not os.path.exists(ALERT_AUDIO_FILE):
         print(f"⚠️  Alert audio file '{ALERT_AUDIO_FILE}' not found!")
         return
@@ -49,15 +51,14 @@ def play_alert_sound():
     try:
         print(f"🔔 Loading audio file: {ALERT_AUDIO_FILE}")
         print("🔔 Playing Alert Sound (Bluetooth speaker)...")
-        # Use aplay to play the audio file
-        subprocess.run(['aplay', ALERT_AUDIO_FILE], check=True)
+        current_process = subprocess.Popen(['aplay', ALERT_AUDIO_FILE])
+        current_process.wait()
         print("🔔 Alert Sound finished")
+
     
     except FileNotFoundError:
         print("❌ Error: aplay not found. Please install alsa-utils:")
         print("   sudo apt-get install alsa-utils")
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Error playing alert sound: {e}")
     except Exception as e:
         print(f"❌ Unexpected error playing alert sound: {e}")
 
@@ -83,10 +84,18 @@ try:
         # Determine which LED to turn on based on the measured volume
         if volume < THRESHOLD_LOW:
             green_led.on()
+            if current_process:  # ADDED: kill audio when quiet
+                current_process.kill()
+                current_process = None
             print("🟢 Green LED (Quiet)")
+            
         elif THRESHOLD_LOW <= volume < THRESHOLD_HIGH:
             yellow_led.on()
+            if current_process:  # ADDED: kill audio when moderate
+                current_process.kill()
+                current_process = None
             print("🟡 Yellow LED (Moderate)")
+            
         else:
             red_led.on()
             print("🔴 Red LED (Loud) - Alert should trigger!")
@@ -94,7 +103,6 @@ try:
             # Only play alert if enough time has passed since last alert
             current_time = time()
             if current_time - last_alert_time > ALERT_COOLDOWN:
-                print(f"🔔 Starting alert thread...")
                 last_alert_time = current_time
                 alert_thread = Thread(target=play_alert_sound, daemon=True)
                 alert_thread.start()
@@ -103,6 +111,8 @@ try:
 
 except KeyboardInterrupt:
     print("\nShutting down safely. Turning off all LEDs.")
+    if current_process:  # ADDED: kill audio on exit
+        current_process.kill()
     green_led.off()
     yellow_led.off()
     red_led.off()
